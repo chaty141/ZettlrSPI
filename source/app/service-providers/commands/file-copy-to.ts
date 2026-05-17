@@ -34,7 +34,7 @@ export default class FileCopyTo extends ZettlrCommand {
     }
 
     const filename = path.basename(arg.path)
-    const targetPath = path.join(arg.targetDir, filename)
+    const targetPath = path.posix.join(arg.targetDir, filename)
 
     if (await this._app.fsal.pathExists(targetPath)) {
       this._app.windows.prompt({

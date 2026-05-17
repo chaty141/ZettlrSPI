@@ -38,7 +38,7 @@ export default class FileMoveTO extends ZettlrCommand {
     }
 
     const filename = path.basename(arg.path)
-    const newPath = path.join(arg.targetDir, filename)
+    const newPath = path.posix.join(arg.targetDir, filename)
 
     if (await this._app.fsal.pathExists(newPath)) {
       this._app.windows.prompt({
