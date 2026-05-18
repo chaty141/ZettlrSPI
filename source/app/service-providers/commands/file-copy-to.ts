@@ -33,10 +33,10 @@ export default class FileCopyTo extends ZettlrCommand {
       })
       return
     }
-    //perserve original filename in selected destination
+    // Preserve original filename in selected destination
     const filename = path.basename(arg.path)
-    const targetPath = path.posix.join(arg.targetDir, filename)
-    //Block overwrite to prevent unintended data loss
+    const targetPath = path.join(arg.targetDir, filename)
+    // Block overwrite to prevent unintended data loss
     if (await this._app.fsal.pathExists(targetPath)) {
       this._app.windows.prompt({
         type: 'error',
@@ -45,7 +45,7 @@ export default class FileCopyTo extends ZettlrCommand {
       })
       return
     }
-    //Execute copy only after validation process
+    // Execute copy only after validation process
     await this._app.fsal.copyFile(arg.path, targetPath)
   }
 }
