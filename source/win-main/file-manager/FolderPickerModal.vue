@@ -60,11 +60,13 @@ const query = ref('')
 const selected = ref<string | null>(null)
 
 interface FlatDir {
+  //Flattend directory view for tree rendering and indentation
   readonly path: string
   readonly name: string
   readonly depth: number
 }
 
+//build a sorted flat list with depth for visual nesting
 const allDirs = computed<FlatDir[]>(() => {
   const rootPaths = workspaceStore.rootDescriptors
     .filter(d => d.type === 'directory')
@@ -73,22 +75,27 @@ const allDirs = computed<FlatDir[]>(() => {
   return [...workspaceStore.descriptorMap.values()]
     .filter((d): d is DirDescriptor => d.type === 'directory')
     .map(d => {
+      //find owning root for relative depth calculation
       const root = rootPaths.find(r => d.path.startsWith(r))
+      //strip root prefix so depth is local to each workspace
       const relative = root !== undefined ? d.path.slice(root.length) : d.path
+      //support both windows and unix path sepeartors
       const depth = relative.split(/[\\/]/).filter(Boolean).length
       return { path: d.path, name: d.name, depth }
     })
+    // keep folder order deterministic for predictable selection
     .sort((a, b) => a.path.localeCompare(b.path))
 })
-
+//apply case insentive name filtering for folder search
 const filteredDirs = computed<FlatDir[]>(() => {
   const q = query.value.toLowerCase().trim()
+  //empty query shows full directory tree
   if (q === '') {
     return allDirs.value
   }
   return allDirs.value.filter(d => d.name.toLowerCase().includes(q))
 })
-
+//Prevent confirm when no folder selected
 function onSelect (path: string): void {
   selected.value = path
 }
