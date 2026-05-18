@@ -51,12 +51,14 @@ export function displayFileContext (event: MouseEvent, fileObject: MDFileDescrip
       type: 'normal'
     },
     { type: 'separator' },
+    // Folder-targeted file transfer actions
     {
       label: trans('Copy to…'),
       id: 'menu.copy_to',
       type: 'normal',
       enabled: true,
     },
+    // Uses picker-selected destination directory
     {
       label: trans('Move to…'),
       id: 'menu.move_file',

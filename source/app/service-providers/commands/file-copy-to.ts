@@ -23,6 +23,7 @@ export default class FileCopyTo extends ZettlrCommand {
   }
 
   async run (_evt: string, arg: { path: string, targetDir: string }): Promise<void> {
+    // Validate source before resolving destination path
     if (!await this._app.fsal.isFile(arg.path)) {
       this._app.log.error(`[FileCopyTo] Source file not found: ${arg.path}`)
       this._app.windows.prompt({
@@ -32,10 +33,10 @@ export default class FileCopyTo extends ZettlrCommand {
       })
       return
     }
-
+    //perserve original filename in selected destination
     const filename = path.basename(arg.path)
     const targetPath = path.posix.join(arg.targetDir, filename)
-
+    //Block overwrite to prevent unintended data loss
     if (await this._app.fsal.pathExists(targetPath)) {
       this._app.windows.prompt({
         type: 'error',
@@ -44,7 +45,7 @@ export default class FileCopyTo extends ZettlrCommand {
       })
       return
     }
-
+    //Execute copy only after validation process
     await this._app.fsal.copyFile(arg.path, targetPath)
   }
 }

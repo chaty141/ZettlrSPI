@@ -99,7 +99,9 @@ export function useItemComposable (
   const obj = ref(object)
   const nameEditing = ref<boolean>(false)
   const showPopover = ref<boolean>(false)
+  //Track modal state for destination selection workflow
   const showFolderPicker = ref<boolean>(false)
+  // Reuse picker for copy and move actions
   const folderPickerVerb = ref<'Copy' | 'Move'>('Copy')
   const operationType = ref<'createFile'|'createDir'|undefined>(undefined)
 
@@ -346,13 +348,15 @@ export function useItemComposable (
       .catch(e => console.error(e))
       .finally(() => { nameEditing.value = false })
   }
-
+  //Dispatch selected destination to match file command
   function handleFolderPick (targetDir: string): void {
+    // Resolve backend command from mode
     const command = folderPickerVerb.value === 'Copy' ? 'file-copy-to' : 'file-move-to'
     ipcRenderer.invoke('application', {
       command,
       payload: { path: obj.value.path, targetDir }
     }).catch(err => console.error(err))
+    //close picker after command dispatched
     showFolderPicker.value = false
   }
 

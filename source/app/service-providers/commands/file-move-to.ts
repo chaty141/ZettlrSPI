@@ -23,6 +23,7 @@ export default class FileMoveTO extends ZettlrCommand {
   }
 
   async run (_evt: string, arg: { path: string, targetDir: string }): Promise<void> {
+    //Ensure move source still exists
     if (!await this._app.fsal.isFile(arg.path)) {
       this._app.log.error(`[FileMoveTO] Source file not found: ${arg.path}`)
       this._app.windows.prompt({
@@ -32,14 +33,14 @@ export default class FileMoveTO extends ZettlrCommand {
       })
       return
     }
-
+    // skip no-op moves within current directory
     if (path.dirname(arg.path) === arg.targetDir) {
       return
     }
-
+    //keep filename while relocating parent directory
     const filename = path.basename(arg.path)
     const newPath = path.posix.join(arg.targetDir, filename)
-
+    //reject collisons to avoid accidental overwrite
     if (await this._app.fsal.pathExists(newPath)) {
       this._app.windows.prompt({
         type: 'error',
@@ -48,7 +49,7 @@ export default class FileMoveTO extends ZettlrCommand {
       })
       return
     }
-
+    //Prevent moving unsaved buffers out of sync
     if (this._app.documents.isModified(arg.path)) {
       this._app.windows.prompt({
         type: 'error',
@@ -57,7 +58,7 @@ export default class FileMoveTO extends ZettlrCommand {
       })
       return
     }
-
+    //Move file and sync open document references
     await this._app.fsal.rename(arg.path, newPath)
     await this._app.documents.hasMovedFile(arg.path, newPath)
   }
